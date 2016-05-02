@@ -7,7 +7,8 @@ import (
 )
 
 func Write(m string, q string, v string) error {
-    conn, dialErr := amqp.Dial("amqp://guest:guest@127.0.0.1:5672/" + v)
+    host := common.Concat("amqp://guest:guest@127.0.0.1:5672/",v)
+    conn, dialErr := amqp.Dial(host)
     common.CheckError(dialErr)
     defer conn.Close()
 

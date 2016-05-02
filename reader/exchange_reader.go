@@ -9,7 +9,8 @@ import (
 )
 
 func Read(q string, v string) {
-    conn, dialErr := amqp.Dial("amqp://guest:guest@127.0.0.1:5672/" + v)
+    host := common.Concat("amqp://guest:guest@127.0.0.1:5672/",v)
+    conn, dialErr := amqp.Dial(host)
     common.CheckError(dialErr)
     defer conn.Close()
 
@@ -28,7 +29,7 @@ func Read(q string, v string) {
     qosErr := c.Qos(8,0,false)
     common.CheckError(qosErr)
 
-    messages,consumeErr := c.Consume(q,q,false,false,false,false,nil)
+    messages, consumeErr := c.Consume(q, q, false, false, false, false, nil)
     common.CheckError(consumeErr)
 
     for i := 0; i < runtime.NumCPU(); i++ {
@@ -40,5 +41,7 @@ func Read(q string, v string) {
         }(messages)
     }
 
-    time.Sleep(10 * time.Second)
+    for {
+        time.Sleep(2 * time.Millisecond)
+    }
 }
