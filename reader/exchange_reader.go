@@ -8,9 +8,8 @@ import (
     "time"
 )
 
-func Read(q string, v string) {
-    host := common.Concat("amqp://guest:guest@127.0.0.1:5672/",v)
-    conn, dialErr := amqp.Dial(host)
+func Read(h,q,v string) {
+    conn, dialErr := amqp.Dial(h)
     common.CheckError(dialErr)
     defer conn.Close()
 

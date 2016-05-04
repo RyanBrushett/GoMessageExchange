@@ -5,6 +5,7 @@
 # IntelliJ project files
 .idea
 *.iml
+*.properties
 out
 gen### OSX template
 .DS_Store

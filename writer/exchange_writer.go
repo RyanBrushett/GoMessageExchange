@@ -6,9 +6,8 @@ import (
     "time"
 )
 
-func Write(m string, q string, v string) error {
-    host := common.Concat("amqp://guest:guest@127.0.0.1:5672/",v)
-    conn, dialErr := amqp.Dial(host)
+func Write(m, h, v, q string) error {
+    conn, dialErr := amqp.Dial(h)
     common.CheckError(dialErr)
     defer conn.Close()
 

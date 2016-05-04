@@ -7,9 +7,12 @@ import (
 )
 
 func main() {
+    p := common.PropertiesJson("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
+    rmq := common.AMQPConnectionString(p)
     for i := 0; i < 100; i++ {
         message := common.Concat("This is a message: ", strconv.Itoa(i))
-        err := writer.Write(message, "test-queue", "processing@rabbitmq.net")
-        common.CheckError(err)
+        common.CheckError(
+            writer.Write(message, rmq, p.VirtHost, p.AckQueue),
+        )
     }
 }
