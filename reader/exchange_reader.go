@@ -3,12 +3,13 @@ package reader
 import (
     "github.com/streadway/amqp"
     "github.com/ryanbrushett/msg-worker/common"
-    "runtime"
-    "fmt"
-    "time"
 )
 
-func Read(h,q,v string) {
+func Read(d,f string) (<-chan amqp.Delivery, error) {
+    p := common.PropertiesJson(d,f)
+    h := common.AMQPConnectionString(p)
+    q := p.AckQueue
+    v := p.VirtHost
     conn, dialErr := amqp.Dial(h)
     common.CheckError(dialErr)
     defer conn.Close()
@@ -28,19 +29,5 @@ func Read(h,q,v string) {
     qosErr := c.Qos(8,0,false)
     common.CheckError(qosErr)
 
-    messages, consumeErr := c.Consume(q, q, false, false, false, false, nil)
-    common.CheckError(consumeErr)
-
-    for i := 0; i < runtime.NumCPU(); i++ {
-        go func(work <-chan amqp.Delivery) {
-            for message := range work {
-                fmt.Println(string(message.Body))
-                message.Ack(false)
-            }
-        }(messages)
-    }
-
-    for {
-        time.Sleep(2 * time.Millisecond)
-    }
+    return c.Consume(q, q, false, false, false, false, nil)
 }

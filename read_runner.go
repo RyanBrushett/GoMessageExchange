@@ -3,10 +3,20 @@ package main
 import (
     "github.com/ryanbrushett/msg-worker/reader"
     "github.com/ryanbrushett/msg-worker/common"
+    "github.com/streadway/amqp"
+    "fmt"
 )
 
 func main() {
-    p := common.PropertiesJson("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
-    rmq := common.AMQPConnectionString(p)
-    reader.Read(rmq, p.AckQueue, p.VirtHost)
+    messages, consumeErr := reader.Read("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
+    common.CheckError(consumeErr)
+    forever := make(chan bool)
+
+    go func(work <-chan amqp.Delivery) {
+        for message := range work {
+            fmt.Println(string(message.Body))
+            message.Ack(false)
+        }
+    }(messages)
+    <-forever
 }
