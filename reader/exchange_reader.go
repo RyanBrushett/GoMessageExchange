@@ -3,9 +3,18 @@ package reader
 import (
     "github.com/streadway/amqp"
     "github.com/ryanbrushett/msg-worker/common"
+    "os"
 )
 
-func Read(d,f string) (*amqp.Connection, <-chan amqp.Delivery, error) {
+func Consume() (*amqp.Connection, <-chan amqp.Delivery, error) {
+    d := os.Getenv("MSG_CONFIG_HOME")
+    if len(d) < 1 {
+        panic("Please Set MSG_CONFIG_HOME variable")
+    }
+    if d[len(d)-1:] != "/" {
+        d = common.Concat(d,"/")
+    }
+    f := "config.json"
     p := common.PropertiesJson(d,f)
     h := common.AMQPConnectionString(p)
     q := p.AckQueue

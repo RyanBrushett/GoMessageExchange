@@ -6,7 +6,11 @@ import (
     "time"
 )
 
-func Write(m, h, v, q string) error {
+func Write(m,d,f string) error {
+    p := common.PropertiesJson(d,f)
+    h := common.AMQPConnectionString(p)
+    q := p.AckQueue
+    v := p.VirtHost
     conn, dialErr := amqp.Dial(h)
     common.CheckError(dialErr)
     defer conn.Close()

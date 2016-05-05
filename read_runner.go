@@ -15,7 +15,7 @@ func doWork(work <-chan amqp.Delivery) {
 }
 
 func main() {
-    conn, messages, consumeErr := reader.Read("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
+    conn, messages, consumeErr := reader.Consume()
     common.CheckError(consumeErr)
     forever := make(chan bool)
     go doWork(messages)

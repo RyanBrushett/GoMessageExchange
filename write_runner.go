@@ -7,14 +7,12 @@ import (
 )
 
 func main() {
-    p := common.PropertiesJson("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
-    rmq := common.AMQPConnectionString(p)
-    queue := p.AckQueue
-    vhost := p.VirtHost
+    configDir := "/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/"
+    configFile := "config.json"
     for i := 0; i < 100; i++ {
         message := common.Concat("This is a message: ", strconv.Itoa(i))
         common.CheckError(
-            writer.Write(message, rmq, vhost, queue),
+            writer.Write(message,configDir,configFile),
         )
     }
 }
