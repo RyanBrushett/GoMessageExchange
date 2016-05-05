@@ -5,14 +5,13 @@ import (
     "github.com/ryanbrushett/msg-worker/common"
 )
 
-func Read(d,f string) (<-chan amqp.Delivery, error) {
+func Read(d,f string) (*amqp.Connection, <-chan amqp.Delivery, error) {
     p := common.PropertiesJson(d,f)
     h := common.AMQPConnectionString(p)
     q := p.AckQueue
     v := p.VirtHost
     conn, dialErr := amqp.Dial(h)
     common.CheckError(dialErr)
-    defer conn.Close()
 
     c, channelError := conn.Channel()
     common.CheckError(channelError)
@@ -29,5 +28,6 @@ func Read(d,f string) (<-chan amqp.Delivery, error) {
     qosErr := c.Qos(8,0,false)
     common.CheckError(qosErr)
 
-    return c.Consume(q, q, false, false, false, false, nil)
+    messages, err := c.Consume(q, q, false, false, false, false, nil)
+    return conn, messages, err
 }

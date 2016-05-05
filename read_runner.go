@@ -7,16 +7,18 @@ import (
     "fmt"
 )
 
+func doWork(work <-chan amqp.Delivery) {
+    for message := range work {
+        fmt.Println(string(message.Body))
+        message.Ack(false)
+    }
+}
+
 func main() {
-    messages, consumeErr := reader.Read("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
+    conn, messages, consumeErr := reader.Read("/Users/ryan/Documents/code/ryanbrushett/msg-worker/properties/","config.json")
     common.CheckError(consumeErr)
     forever := make(chan bool)
-
-    go func(work <-chan amqp.Delivery) {
-        for message := range work {
-            fmt.Println(string(message.Body))
-            message.Ack(false)
-        }
-    }(messages)
+    go doWork(messages)
     <-forever
+    conn.Close()
 }
